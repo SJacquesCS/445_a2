@@ -27,15 +27,46 @@ def handle_client(conn, addr):
                 break
 
             request = data.decode("utf-8")
+            splitter = request.split(" ")
+            vb_splitter = request.split("\r\n")
+            verbose_answer = ""
 
-            print(request)
+            for line in vb_splitter:
+                verbose_answer += str(line) + "<br>"
 
-            response = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html \r\n" + "\r\n"
+            if "GET" in splitter:
+                get_index = splitter.index("GET")
 
-            if "GET" in request or "get" in request:
-                files = listdir('./files')
-                for file in files:
-                    response += "/" + file + "\n"
+                if splitter[get_index + 1] == "/":
+
+                    response = "HTTP/1.1 200 OK\r\n"\
+                               + "Content-Type: text/html\r\n\r\n"\
+                               + verbose_answer + "\r\n"\
+                               + "Files Available:<br><br>"
+
+                    files = listdir('./files')
+                    for file in files:
+                        response += "/" + file + "<br>"
+                else:
+                    try:
+                        file = open("./files" + splitter[get_index + 1])
+                        response = "HTTP/1.1 200 OK\r\n"\
+                                   + "Content-Type: text/html\r\n\r\n"\
+                                   + file.read()
+                    except FileNotFoundError:
+                        response = "HTTP/1.1 404 NOT FOUND\r\n"\
+                                   + "Content-Type: text/html\r\n\r\n"\
+                                   + "HTTP ERROR 404 NOT FOUND"
+            elif "POST" in splitter:
+                response = "HTTP/1.1 200 OK\r\n"\
+                           + "Content-Type: text/html"\
+                           + "Content-Length: 16\r\n\r\n"\
+                           + "<html><body><p>File Overwritten</p></body></html>"
+
+            else:
+                response = "HTTP/1.1 400 BAD REQUEST\r\n"\
+                           + "Content-Type: text/html\r\n\r\n"\
+                           + "HTTP ERROR 400 BAD REQUEST"
 
             print(response)
 
@@ -44,6 +75,7 @@ def handle_client(conn, addr):
             conn.send(encoded_response)
     finally:
         conn.close()
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", help="echo server port", type=int, default=8007)
