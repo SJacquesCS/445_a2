@@ -35,8 +35,6 @@ def handle_client(conn, addr):
             body_splitter = request.split("\r\n\r\n")
             vb_req_splitter = body_splitter[0].split("\r\n")
 
-            print(body_splitter)
-
             verbose_answer = ""
 
             for line in vb_req_splitter:
@@ -112,8 +110,6 @@ def handle_client(conn, addr):
                            + "Content-Type: text/html\r\n"\
                            + "Content-Length: 26\r\n\r\n"\
                            + "HTTP ERROR 400 BAD REQUEST"
-
-            print(response)
 
             encoded_response = response.encode("utf-8")
 
