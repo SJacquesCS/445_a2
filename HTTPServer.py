@@ -2,7 +2,6 @@ import socket
 import threading
 import argparse
 import os
-from os import path
 
 
 def run_server(host, port):
